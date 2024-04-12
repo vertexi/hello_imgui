@@ -209,6 +209,22 @@ namespace HelloImGui
         return font;
     }
 
+    std::vector<HelloImGui::ImWcharPair> ImWchar2ImWcharPairs(const ImWchar* glyphRanges)
+    {
+        std::vector<HelloImGui::ImWcharPair> glyphRange = {};
+        if (glyphRanges!= nullptr)
+        {
+            for (const ImWchar* src_range = glyphRanges; src_range[0] && src_range[1]; src_range += 2)
+            {
+                // Check for valid range. This may also help detect *some* dangling pointers, because a common
+                // user error is to setup ImFontConfig::GlyphRanges with a pointer to data that isn't persistent.
+                IM_ASSERT(src_range[0] <= src_range[1]);
+                glyphRange.push_back({ src_range[0], src_range[1] });
+            }
+        }
+        return glyphRange;
+    }
+
     ImFont* LoadFontTTF(const std::string & fontFilename, float fontSize, bool useFullGlyphRange, ImFontConfig config)
     {
         FontLoadingParams fontLoadingParams;

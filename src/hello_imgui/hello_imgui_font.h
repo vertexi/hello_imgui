@@ -64,7 +64,7 @@ namespace HelloImGui
 
     // @@md
 
-
+    std::vector<HelloImGui::ImWcharPair> ImWchar2ImWcharPairs(const ImWchar* glyphRanges);
     //
     // Deprecated API below, kept for compatibility (uses LoadFont internally)
     //
