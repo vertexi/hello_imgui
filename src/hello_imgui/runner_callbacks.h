@@ -259,6 +259,9 @@ struct RunnerCallbacks
     AnyEventCallback AnyBackendEventCallback = EmptyEventCallback();
 
 
+    VoidFunction HideWindow = EmptyVoidFunction();
+
+
     // --------------- Mobile callbacks -------------------
 #ifdef HELLOIMGUI_MOBILEDEVICE
     // `mobileCallbacks`: Callbacks that are called by the application

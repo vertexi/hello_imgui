@@ -193,6 +193,8 @@ struct AppWindowParams
     //  If so, a close button is displayed at the top-right of the window
     //  when the mouse is over it.
     bool   borderlessClosable = true;
+
+    bool   borderlessHideable = true;
     // `borderlessHighlightColor`:
     //   Color of the highlight displayed on resize/move zones.
     //   If borderlessHighlightColor.w==0, then the highlightColor will be automatically

@@ -24,6 +24,7 @@ namespace HelloImGui
         bool borderlessMovable = runnerParams.appWindowParams.borderlessMovable;
         bool borderlessResizable = runnerParams.appWindowParams.borderlessResizable;
         bool borderlessClosable = runnerParams.appWindowParams.borderlessClosable;
+        bool borderlessHideable = runnerParams.appWindowParams.borderlessHideable;
         ImVec4 borderlessHighlightColor = runnerParams.appWindowParams.borderlessHighlightColor;
 
         ImU32 highlightColorU32 = ImGui::GetColorU32(borderlessHighlightColor);
@@ -131,6 +132,32 @@ namespace HelloImGui
                     );
                 }
 
+                bool mouseHoverMinusButton = false;
+                if (borderlessHideable)
+                {
+                    ImVec2 btnPos(topRight.x - 2 * btnSize.x, topRight.y);
+                    ImRect btnArea(btnPos, btnPos + btnSize);
+
+                    // circle
+                    ImU32 colorButton = 0xFF0000BB;
+                    ImGui::GetForegroundDrawList()->AddCircleFilled(
+                        btnArea.GetCenter(),
+                        btnSize.x * 0.5f,
+                        colorButton
+                    );
+                    // Draw a minus sign in the circle
+                    ImVec2 crossSize(btnSize.x * 0.4f, btnSize.y * 0.4f);
+                    ImVec2 lineStart(btnArea.GetCenter().x - crossSize.x * 0.55f, btnArea.GetCenter().y);
+                    ImVec2 lineENd(btnArea.GetCenter().x + crossSize.x * 0.55f, btnArea.GetCenter().y);
+                    ImGui::GetForegroundDrawList()->AddLine(
+                        lineStart,
+                        lineENd,
+                        ImGui::GetColorU32(ImGuiCol_Text),
+                        1.5f
+                    );
+                    mouseHoverMinusButton = btnArea.Contains(mousePos);
+                }
+
                 // Handle click: if the mouse was pressed down on the button and released on the button, then close the window
                 static bool clickedDownOnButton = false;
                 if (mouseHoverButton && ImGui::IsMouseDown(ImGuiMouseButton_Left))
@@ -144,6 +171,22 @@ namespace HelloImGui
                 }
                 if (!ImGui::IsMouseDown(ImGuiMouseButton_Left))
                     clickedDownOnButton = false;
+
+                {
+                    static bool clickedDownOnButton = false;
+                    if (mouseHoverMinusButton && ImGui::IsMouseDown(ImGuiMouseButton_Left))
+                    {
+                        clickedDownOnButton = true;
+                    }
+                    if (ImGui::IsMouseReleased(ImGuiMouseButton_Left) && mouseHoverMinusButton && clickedDownOnButton)
+                    {
+                        clickedDownOnButton = false;
+                        if (runnerParams.callbacks.HideWindow)
+                            runnerParams.callbacks.HideWindow();
+                    }
+                    if (!ImGui::IsMouseDown(ImGuiMouseButton_Left))
+                        clickedDownOnButton = false;
+                }
             }
         }
 
