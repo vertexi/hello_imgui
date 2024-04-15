@@ -76,6 +76,10 @@ namespace HelloImGui
         std::string iniFilename = _getIniFileName();
         std::string folder = HelloImGui::IniFolderLocation(runnerParams.iniFolderType);
 
+        if (runnerParams.iniFolderType == IniFolderType::CustomFolder)
+        {
+            folder = runnerParams.iniFolder;
+        }
         std::string iniFullFilename = folder.empty() ? iniFilename : folder + "/" + iniFilename;
         bool settingsDirIsAccessible = mkdirToFilename(iniFullFilename);
         IM_ASSERT(settingsDirIsAccessible);

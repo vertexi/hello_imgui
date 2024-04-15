@@ -89,7 +89,9 @@ enum class IniFolderType
     DocumentsFolder,
 
     // TempFolder: the system temp folder
-    TempFolder
+    TempFolder,
+
+    CustomFolder
 };
 
 // Returns the path corresponding to the given IniFolderType
@@ -220,6 +222,8 @@ struct RunnerParams
     // `iniFilename_useAppWindowTitle`: _bool, default = true_.
     // Shall the iniFilename be derived from appWindowParams.windowTitle (if not empty)
     bool iniFilename_useAppWindowTitle = true;
+
+    std::string iniFolder = "";
 
 
     // --------------- Exit -------------------
