@@ -13,7 +13,7 @@
 #include "hello_imgui/internal/platform/getAppleBundleResourcePath.h"
 #endif
 
-
+typedef const unsigned int* fontMemory;
 
 namespace ImGui_SensibleFont
 {
@@ -88,6 +88,13 @@ namespace ImGui_SensibleFont
             StoreStaticGlyphRange(font_cfg, glyph_ranges);
         font_cfg->FontDataOwnedByAtlas = false;
         return ImGui::GetIO().Fonts->AddFontFromMemoryTTF(font_data, font_data_size, font_size_pixels, font_cfg);
+    }
+
+    ImFont* AddFontFromMemoryCompressedTTF_2(void* font_data, int font_data_size, float font_size_pixels, ImFontConfig* font_cfg = NULL, const ImVector<ImWchar> & glyph_ranges = {})
+    {
+        if (font_cfg != NULL && !glyph_ranges.empty())
+            StoreStaticGlyphRange(font_cfg, glyph_ranges);
+        return ImGui::GetIO().Fonts->AddFontFromMemoryCompressedTTF(font_data, font_data_size, font_size_pixels, font_cfg);
     }
 } // namespace ImGui_SensibleFont
 
@@ -193,6 +200,72 @@ namespace HelloImGui
             font = ImGui_SensibleFont::AddFontFromFileTTF_2(
                 fontFilename.c_str(), fontSize, &params.fontConfig, glyphRangesImVector);
         }
+
+        if (params.mergeFontAwesome)
+        {
+            IM_ASSERT(params.insideAssets && "FontLoadingParmas.mergeFontAwesome requires params.insideAssets");
+            static std::string faFile = "fonts/fontawesome-webfont.ttf";
+            FontLoadingParams fontLoadingParamsFa;
+            fontLoadingParamsFa.fontConfig = params.fontConfigFontAwesome;
+            fontLoadingParamsFa.mergeToLastFont = true;
+            fontLoadingParamsFa.adjustSizeToDpi = params.adjustSizeToDpi;
+            fontLoadingParamsFa.glyphRanges.push_back({ ICON_MIN_FA, ICON_MAX_FA });
+            font = LoadFont(faFile, fontSize_, fontLoadingParamsFa);
+        }
+
+        return font;
+    }
+
+    ImFont* LoadFont(void * fontData, int fontDataSize, float fontSize_, const FontLoadingParams& params_)
+    {
+        gDidCallHelloImGuiLoadFontTTF = true;
+
+        FontLoadingParams params = params_;
+
+        float fontSize = fontSize_;
+        if (params.adjustSizeToDpi)
+            fontSize *= FontLoadingFactor();
+
+        if (params.useFullGlyphRange)
+        {
+            params.glyphRanges.clear();
+#ifdef IMGUI_USE_WCHAR32
+            params.glyphRanges.push_back({ 0x0001, 0x1FFFF });
+#else
+            params.glyphRanges.push_back({ 0x0001, 0xFFFF });
+#endif
+            if (params.reduceMemoryUsageIfFullGlyphRange)
+                params.fontConfig.OversampleH = params.fontConfig.OversampleV = 1;
+        }
+
+        if (params.loadColor)
+        {
+#ifdef IMGUI_ENABLE_FREETYPE
+            params.fontConfig.FontBuilderFlags |= ImGuiFreeTypeBuilderFlags_LoadColor;
+#else
+            IM_ASSERT(false && "FontLoadingParmas.loadColor requires freetype (IMGUI_ENABLE_FREETYPE)");
+            return nullptr;
+#endif
+        }
+
+        params.fontConfig.MergeMode = params.mergeToLastFont;
+
+        ImFont* font = nullptr;
+
+        // Populate the glyph ranges for ImGui:
+        // 2 value per range, values are inclusive, zero-terminated list
+        ImVector<ImWchar> glyphRangesImVector;
+        if (! params.glyphRanges.empty())
+        {
+            for (const auto & glyph_range_interval : params.glyphRanges)
+            {
+                glyphRangesImVector.push_back(glyph_range_interval[0]);
+                glyphRangesImVector.push_back(glyph_range_interval[1]);
+            }
+            glyphRangesImVector.push_back(0); // Zero-terminate the array
+        }
+
+        font = ImGui_SensibleFont::AddFontFromMemoryCompressedTTF_2((void *)fontData, fontDataSize, fontSize, &params.fontConfig, glyphRangesImVector);
 
         if (params.mergeFontAwesome)
         {

@@ -62,6 +62,9 @@ namespace HelloImGui
     ImFont* LoadFont(const std::string & fontFilename, float fontSize,
                      const FontLoadingParams & params = {});
 
+    ImFont* LoadFont(void * fontData, int fontDataSize, float fontSize_,
+                    const FontLoadingParams& params_);
+
     // @@md
 
     std::vector<HelloImGui::ImWcharPair> ImWchar2ImWcharPairs(const ImWchar* glyphRanges);

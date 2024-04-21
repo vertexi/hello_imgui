@@ -635,9 +635,6 @@ void AbstractRunner::Setup()
 
     Impl_LinkPlatformAndRenderBackends();
 
-    if (params.callbacks.PostInit)
-        params.callbacks.PostInit();
-
     params.callbacks.SetupImGuiConfig();
 
     #ifdef HELLOIMGUI_WITH_TEST_ENGINE
@@ -664,6 +661,9 @@ void AbstractRunner::Setup()
             ImGui::GetIO().FontGlobalScale = dpiFactor;
         }
     }
+
+    if (params.callbacks.PostInit)
+        params.callbacks.PostInit();
 
     DockingDetails::ConfigureImGuiDocking(params.imGuiWindowParams);
     HelloImGuiIniSettings::LoadHelloImGuiMiscSettings(IniSettingsLocation(params), &params);
